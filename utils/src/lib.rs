@@ -12,18 +12,27 @@
 #![no_std]
 
 use core::{convert::Infallible, str, fmt};
+use core::sync::atomic;
 
 pub use heapless::consts;
 use heapless::{ArrayLength, String};
 use ufmt_write::uWrite;
 
+#[doc(hidden)]
+#[allow(dead_code)]
+pub unsafe fn unsafe_marker() {
+    // This marker is used to make the macro unsafe
+    atomic::compiler_fence(atomic::Ordering::Relaxed);
+}
 
 macro_rules! assume_unreachable {
     () => {
         if cfg!(debug_assertions) {
             panic!()
         } else {
-            core::hint::unreachable_unchecked()
+            crate::macros::unsafe_marker();
+            unreachable!()
+            // core::hint::unreachable_unchecked()
         }
     };
 }
